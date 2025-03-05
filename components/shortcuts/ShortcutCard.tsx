@@ -16,6 +16,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import Link from "next/link"
 
 interface ShortcutCardProps {
   shortcut: Shortcut
@@ -48,10 +49,10 @@ export default function ShortcutCard({ shortcut, onDelete }: ShortcutCardProps) 
           <div className="flex-grow"></div>
         </div>
         <div className="flex border-t border-gray-200 dark:border-gray-700 divide-x divide-gray-200 dark:divide-gray-700">
-          <Button variant="ghost" className="flex-1 rounded-none h-10 text-xs" onClick={handleOpenLink}>
+          <Link href={shortcut.url} className="flex-1 w-full text-center flex items-center justify-center rounded-none h-10 text-xs" >
             <ExternalLink className="h-4 w-4 mr-2" />
-            Open
-          </Button>
+            Open here
+          </Link>
 
           <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
             <AlertDialogTrigger asChild>
