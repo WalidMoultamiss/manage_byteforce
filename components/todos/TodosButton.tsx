@@ -29,10 +29,10 @@ export default function TodosButton({ onClick }: TodosButtonProps) {
 
   return (
     <Button size="sm" onClick={onClick} className="relative">
-      <ListTodo className="h-4 w-4 mr-2" />
-      <span>Todos</span>
+      <ListTodo className="h-4 w-4 md:mr-2" />
+      <span className="hidden md:flex">Todos</span>
       {todoCount > 0 && (
-        <Badge variant="secondary" className="ml-2">
+        <Badge variant="secondary" className="ml-2 hidden md:flex">
           {todoCount}
         </Badge>
       )}

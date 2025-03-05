@@ -32,10 +32,10 @@ export default function OnlineUsersButton({ onClick }: OnlineUsersButtonProps) {
 
   return (
     <Button size="sm" onClick={onClick} variant="outline" className="relative">
-      <Users className="h-4 w-4 mr-2" />
-      <span>Users</span>
+      <Users className="h-4 w-4 md:mr-2" />
+      <span className="hidden md:flex">Users</span>
       {onlineCount > 0 && (
-        <Badge variant="secondary" className="ml-2 bg-green-500 text-white">
+        <Badge variant="secondary" className="ml-2 bg-green-500 text-white hidden md:flex">
           {onlineCount}
         </Badge>
       )}

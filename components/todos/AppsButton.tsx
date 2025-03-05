@@ -16,8 +16,8 @@ export default function AppsButton({ onClick }: AppsButtonProps) {
 
   return (
     <Button size="sm" onClick={onClick} className="relative bg-green-700 hover:bg-green-900">
-      <LayoutDashboardIcon className="h-4 w-4 mr-2" />
-      <span>Apps </span>
+      <LayoutDashboardIcon className="h-4 w-4 md:mr-2" />
+      <span className="hidden md:flex">Apps </span>
     </Button>
   )
 }
