@@ -46,12 +46,12 @@ export default function AddShortcutForm({ onSubmit, onCancel }: AddShortcutFormP
   }
 
   return (
-    <Card className="mb-4">
+    <Card className="h-full">
       <form onSubmit={handleSubmit}>
         <CardContent className="pt-4">
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="title">Title</Label>
+              {/* <Label htmlFor="title">Title</Label> */}
               <Input
                 id="title"
                 placeholder="My Favorite Site"
@@ -61,13 +61,16 @@ export default function AddShortcutForm({ onSubmit, onCancel }: AddShortcutFormP
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="url">URL</Label>
+            <div className="space-y-2 flex gap-3">
+              {/* <Label htmlFor="url">URL</Label> */}
               <Input id="url" placeholder="example.com" value={url} onChange={(e) => setUrl(e.target.value)} required />
+              <Button style={{marginTop : 0 }} className="mt-0" type="submit" disabled={!title || !url }>
+                Add Shortcut
+              </Button>
             </div>
 
             <div className="space-y-2">
-              <Label>Background Color</Label>
+              {/* <Label>Background Color</Label> */}
               <div className="flex flex-wrap gap-2">
                 {COLORS.map((c) => (
                   <button
@@ -83,15 +86,6 @@ export default function AddShortcutForm({ onSubmit, onCancel }: AddShortcutFormP
             </div>
           </div>
         </CardContent>
-
-        <CardFooter className="flex justify-between">
-          <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
-            Cancel
-          </Button>
-          <Button type="submit" disabled={!title || !url || isSubmitting}>
-            {isSubmitting ? "Adding..." : "Add Shortcut"}
-          </Button>
-        </CardFooter>
       </form>
     </Card>
   )

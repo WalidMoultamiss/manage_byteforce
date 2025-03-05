@@ -75,14 +75,11 @@ export default function ShortcutGrid() {
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">
-        <Button size="sm" onClick={() => setIsAddingShortcut(true)} disabled={isAddingShortcut}>
-          <PlusIcon className="h-4 w-4 mr-2" />
-          Add Shortcut
-        </Button>
+      <div className="flex justify-between">
+      <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Shortcuts</h2>
+      
       </div>
 
-      {isAddingShortcut && <AddShortcutForm onSubmit={addShortcut} onCancel={() => setIsAddingShortcut(false)} />}
 
       {shortcuts.length === 0 && !isAddingShortcut ? (
         <div className="text-center p-8 border rounded-md border-dashed">
@@ -93,6 +90,7 @@ export default function ShortcutGrid() {
           {shortcuts.map((shortcut) => (
             <ShortcutCard key={shortcut.id} shortcut={shortcut} onDelete={deleteShortcut} />
           ))}
+          <AddShortcutForm onSubmit={addShortcut} onCancel={() => setIsAddingShortcut(false)} />
         </div>
       )}
     </div>

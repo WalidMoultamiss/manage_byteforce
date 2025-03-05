@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { collection, query, onSnapshot, orderBy } from "firebase/firestore"
+import { collection, query, onSnapshot, orderBy, updateDoc, doc } from "firebase/firestore"
 import { db } from "@/lib/firebase"
 import type { OnlineUser } from "@/lib/types"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -49,6 +49,12 @@ export default function OnlineUsersModal({ isOpen, onClose }: OnlineUsersModalPr
     return "U"
   }
 
+  // Update access to true
+  const grantAccess = async (userId: string) => {
+    const userRef = doc(db, "onlineUsers", userId)
+    await updateDoc(userRef, { access: true })
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
@@ -66,7 +72,9 @@ export default function OnlineUsersModal({ isOpen, onClose }: OnlineUsersModalPr
           ) : (
             <div className="space-y-4">
               {onlineUsers.map((user) => (
-                <div key={user.uid} className="flex items-center space-x-4">
+                <div key={user.uid} className="w-full flex items-center justify-between space-x-4">
+                  <div className="flex  space-x-4">
+
                   <div className="relative">
                     <Avatar>
                       <AvatarImage src={user.photoURL || ""} />
@@ -78,6 +86,16 @@ export default function OnlineUsersModal({ isOpen, onClose }: OnlineUsersModalPr
                     <p className="text-sm font-medium">{user.displayName || "Anonymous User"}</p>
                     <p className="text-xs text-muted-foreground">Active now</p>
                   </div>
+                  </div>
+                  {/* Button to grant access */}
+                  {!user?.access && (
+                    <button
+                      className="ml-4 float-right px-4 py-2 text-white bg-blue-500 rounded"
+                      onClick={() => grantAccess(user.uid)}
+                    >
+                      Grant Access
+                    </button>
+                  )}
                 </div>
               ))}
             </div>
@@ -87,4 +105,3 @@ export default function OnlineUsersModal({ isOpen, onClose }: OnlineUsersModalPr
     </Dialog>
   )
 }
-

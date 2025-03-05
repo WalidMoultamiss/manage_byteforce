@@ -44,7 +44,7 @@ export default function Header({ user }: HeaderProps) {
     <header className="fixed top-0 left-0 right-0 bg-white dark:bg-gray-800 shadow-sm z-10">
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
         <div className="flex items-center space-x-2">
-          <span className="font-bold text-lg text-gray-900 dark:text-white">Firebase Dashboard</span>
+          <span className="font-bold text-lg text-gray-900 dark:text-white">Byteforce Dashboard</span>
         </div>
 
         <DropdownMenu>

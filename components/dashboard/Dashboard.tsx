@@ -9,6 +9,8 @@ import OnlineUsersButton from "../users/OnlineUsersButton"
 import TodosModal from "../todos/TodosModal"
 import OnlineUsersModal from "../users/OnlineUsersModal"
 import { useOnlineStatus } from "@/hooks/useOnlineStatus"
+import AppsButton from "../todos/AppsButton"
+import AppsModal from "../todos/AppsModal"
 
 interface DashboardProps {
   user: User
@@ -16,6 +18,7 @@ interface DashboardProps {
 
 export default function Dashboard({ user }: DashboardProps) {
   const [todosModalOpen, setTodosModalOpen] = useState(false)
+  const [appsModalOpen, setAppsModalOpen] = useState(false)
   const [usersModalOpen, setUsersModalOpen] = useState(false)
 
   // Update user's online status
@@ -31,17 +34,20 @@ export default function Dashboard({ user }: DashboardProps) {
           <div className="flex space-x-2">
             <OnlineUsersButton onClick={() => setUsersModalOpen(true)} />
             <TodosButton onClick={() => setTodosModalOpen(true)} />
+            <AppsButton onClick={() => setAppsModalOpen(true)} />
           </div>
         </div>
 
         <div>
-          <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Shortcuts</h2>
           <ShortcutGrid />
         </div>
       </div>
 
       {todosModalOpen && (
         <TodosModal isOpen={todosModalOpen} onClose={() => setTodosModalOpen(false)} currentUser={user} />
+      )}
+      {appsModalOpen && (
+        <AppsModal isOpen={appsModalOpen} onClose={() => setAppsModalOpen(false)} currentUser={user} />
       )}
 
       {usersModalOpen && <OnlineUsersModal isOpen={usersModalOpen} onClose={() => setUsersModalOpen(false)} />}

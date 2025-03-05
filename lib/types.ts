@@ -59,5 +59,6 @@ export interface OnlineUser {
   displayName: string | null
   photoURL: string | null
   lastActive: any
+  access: boolean | undefined
 }
 

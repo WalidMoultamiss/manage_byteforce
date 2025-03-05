@@ -38,13 +38,13 @@ export default function ShortcutCard({ shortcut, onDelete }: ShortcutCardProps) 
 
   return (
     <Card
-      className="overflow-hidden transition-all duration-200 hover:shadow-md"
+      className="overflow-hidden h-fit transition-all duration-200 hover:shadow-md"
       style={{ backgroundColor: shortcut.color || "#f3f4f6" }}
     >
       <CardContent className="p-0">
         <div className="p-4 cursor-pointer flex flex-col h-full" onClick={handleOpenLink}>
-          <h3 className="font-medium text-gray-900 dark:text-gray-100">{shortcut.title}</h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 truncate">{shortcut.url}</p>
+          <h3 className=" text-gray-900 dark:text-gray-100 text-center font-bold text-3xl my-10">{shortcut.title}</h3>
+          {/* <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 truncate">{shortcut.url}</p> */}
           <div className="flex-grow"></div>
         </div>
         <div className="flex border-t border-gray-200 dark:border-gray-700 divide-x divide-gray-200 dark:divide-gray-700">
