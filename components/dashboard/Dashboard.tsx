@@ -39,7 +39,7 @@ export default function Dashboard({ user }: DashboardProps) {
         </div>
 
         <div>
-          <ShortcutGrid />
+          <ShortcutGrid currentUser={user} />
         </div>
       </div>
 

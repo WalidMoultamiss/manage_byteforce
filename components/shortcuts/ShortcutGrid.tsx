@@ -3,48 +3,69 @@
 import { useState, useEffect } from "react"
 import { collection, query, orderBy, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp } from "firebase/firestore"
 import { db } from "@/lib/firebase"
+import type { User } from "firebase/auth"
 import type { Shortcut } from "@/lib/types"
 import ShortcutCard from "./ShortcutCard"
 import AddShortcutForm from "./AddShortcutForm"
 import { Button } from "@/components/ui/button"
 import { PlusIcon } from "lucide-react"
 
-export default function ShortcutGrid() {
+export default function ShortcutGrid({ currentUser }: { currentUser: User }) {
   const [shortcuts, setShortcuts] = useState<Shortcut[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
   const [isAddingShortcut, setIsAddingShortcut] = useState(false)
 
   useEffect(() => {
-    const q = query(collection(db, "shortcuts"), orderBy("createdAt", "desc"))
+  if (!currentUser) return
 
-    const unsubscribe = onSnapshot(
-      q,
-      (querySnapshot) => {
-        const shortcutsData = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as Shortcut[]
+  // Query for shortcuts with status either "public" or "private"
+  const q = query(
+    collection(db, "shortcuts"),
+    orderBy("createdAt", "desc")
+  )
 
-        setShortcuts(shortcutsData)
-        setLoading(false)
-      },
-      (error) => {
-        console.error("Error fetching shortcuts:", error)
-        setError("Failed to load shortcuts")
-        setLoading(false)
-      },
-    )
+  const unsubscribe = onSnapshot(
+    q,
+    (querySnapshot) => {
+      const shortcutsData = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as Shortcut[]
 
-    return () => unsubscribe()
-  }, [])
+      // Filter: if shortcut is private, only include if currentUser is allowed
+      const filteredShortcuts = shortcutsData.filter((shortcut) => {
+        if (shortcut?.status === "private") {
+          return shortcut.allowedUsers && shortcut?.allowedUsers?.includes(currentUser?.uid)
+        }
+        return true // public shortcuts are always shown
+      })
 
-  const addShortcut = async (shortcut: Omit<Shortcut, "id" | "createdAt">) => {
+      setShortcuts(filteredShortcuts)
+      setLoading(false)
+    },
+    (error) => {
+      console.error("Error fetching shortcuts:", error)
+      setError("Failed to load shortcuts")
+      setLoading(false)
+    }
+  )
+
+  return () => unsubscribe()
+}, [currentUser])
+
+
+  const addShortcut = async (
+    shortcut: Omit<Shortcut, "id" | "createdAt">,
+  ) => {
     try {
-      await addDoc(collection(db, "shortcuts"), {
+      const dataToAdd = {
         ...shortcut,
         createdAt: serverTimestamp(),
-      })
+        // If the shortcut is private, only allow the current user to see it
+        ...(shortcut.status === "private" && { allowedUsers: [currentUser.uid] }),
+      }
+      await addDoc(collection(db, "shortcuts"), dataToAdd)
       setIsAddingShortcut(false)
     } catch (error) {
       console.error("Error adding shortcut:", error)
@@ -76,8 +97,8 @@ export default function ShortcutGrid() {
   return (
     <div className="space-y-4">
       <div className="flex justify-between">
-      <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Shortcuts</h2>
-      
+        <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Shortcuts</h2>
+
       </div>
 
 

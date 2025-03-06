@@ -26,6 +26,7 @@ import SeenByModal from "./SeenByModal"
 interface TodoItemProps {
   todo: Todo
   currentUser: User
+  OpenWide: boolean
   onStatusChange: (id: string, status: TodoStatus) => void
   onArchive: (id: string) => void
 }
@@ -36,7 +37,7 @@ const statusOptions = [
   { value: "done", label: "Done" },
 ]
 
-export default function TodoItem({ todo, currentUser, onStatusChange, onArchive }: TodoItemProps) {
+export default function TodoItem({ OpenWide, todo, currentUser, onStatusChange, onArchive }: TodoItemProps) {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [isExpanded, setIsExpanded] = useState(false)
   const [seenByModalOpen, setSeenByModalOpen] = useState(false)
@@ -80,9 +81,15 @@ export default function TodoItem({ todo, currentUser, onStatusChange, onArchive 
             <div className="space-y-2 flex-grow">
               <div className="flex items-center">
                 <h3 className="font-medium text-gray-900 dark:text-gray-100">{todo.title}</h3>
-                {todo.description && (
+                {(todo.description && OpenWide) && (
                   <CollapsibleTrigger asChild>
-                    <Button variant="ghost" size="sm" className="p-0 h-6 w-6 ml-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="p-0 h-6 w-6 ml-2"
+                      onClick={(e) => e.stopPropagation()}
+                      onPointerDown={(e) => e.stopPropagation()}
+                    >
                       <ChevronDown
                         className={`h-4 w-4 transition-transform ${isExpanded ? "transform rotate-180" : ""}`}
                       />
@@ -93,7 +100,7 @@ export default function TodoItem({ todo, currentUser, onStatusChange, onArchive 
               </div>
 
               {/* Created by */}
-              {todo.createdBy && (
+              {(todo.createdBy && OpenWide) && (
                 <div className="flex items-center text-xs text-muted-foreground">
                   <span>Created by: </span>
                   <Avatar className="h-4 w-4 ml-1">
@@ -110,9 +117,16 @@ export default function TodoItem({ todo, currentUser, onStatusChange, onArchive 
               {todo.seenBy && todo.seenBy.length > 0 && (
                 <div className="flex items-center mt-2">
                   <Eye className="h-4 w-4 mr-2 text-muted-foreground" />
-                  <div className="flex -space-x-2 cursor-pointer" onClick={() => setSeenByModalOpen(true)}>
+                  <div
+                    className="flex -space-x-2 cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setSeenByModalOpen(true)
+                    }}
+                    onPointerDown={(e) => e.stopPropagation()}
+                  >
                     <TooltipProvider>
-                      {todo.seenBy.slice(0, 5).map((user, index) => (
+                      {todo.seenBy.slice(0, 5).map((user) => (
                         <Tooltip key={user.uid}>
                           <TooltipTrigger asChild>
                             <Avatar className="h-6 w-6 border-2 border-background">
@@ -131,7 +145,11 @@ export default function TodoItem({ todo, currentUser, onStatusChange, onArchive 
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <Avatar className="h-6 w-6 border-2 border-background bg-muted">
+                            <Avatar
+                              className="h-6 w-6 border-2 border-background bg-muted"
+                              onClick={(e) => e.stopPropagation()}
+                              onPointerDown={(e) => e.stopPropagation()}
+                            >
                               <AvatarFallback className="text-xs">+{todo.seenBy.length - 5}</AvatarFallback>
                             </Avatar>
                           </TooltipTrigger>
@@ -145,31 +163,40 @@ export default function TodoItem({ todo, currentUser, onStatusChange, onArchive 
                 </div>
               )}
             </div>
-
             <div className="space-x-2 flex">
-              <Select defaultValue={todo.status} onValueChange={handleStatusChange}>
-                <SelectTrigger className={`w-[130px] h-8 text-xs ${getStatusColor(todo.status)}`}>
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  {statusOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {OpenWide && (
+                <Select defaultValue={todo.status} onValueChange={handleStatusChange}>
+                  <SelectTrigger
+                    className={`w-[130px] h-8 text-xs ${getStatusColor(todo.status)}`}
+                    onClick={(e) => e.stopPropagation()}
+                    onPointerDown={(e) => e.stopPropagation()}
+                  >
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {statusOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
 
               <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-8 px-2 text-amber-500 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/20"
-                  >
-                    <Archive className="h-4 w-4" />
-                  </Button>
-                </AlertDialogTrigger>
+                {OpenWide && (
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-8 px-2 text-amber-500 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/20"
+                      onClick={(e) => e.stopPropagation()}
+                      onPointerDown={(e) => e.stopPropagation()}
+                    >
+                      <Archive className="h-4 w-4" />
+                    </Button>
+                  </AlertDialogTrigger>
+                )}
                 <AlertDialogContent>
                   <AlertDialogHeader>
                     <AlertDialogTitle>Archive Todo</AlertDialogTitle>
@@ -178,8 +205,20 @@ export default function TodoItem({ todo, currentUser, onStatusChange, onArchive 
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => onArchive(todo.id)} className="bg-amber-500 hover:bg-amber-600">
+                    <AlertDialogCancel
+                      onClick={(e) => e.stopPropagation()}
+                      onPointerDown={(e) => e.stopPropagation()}
+                    >
+                      Cancel
+                    </AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        onArchive(todo.id)
+                      }}
+                      onPointerDown={(e) => e.stopPropagation()}
+                      className="bg-amber-500 hover:bg-amber-600"
+                    >
                       Archive
                     </AlertDialogAction>
                   </AlertDialogFooter>
@@ -209,6 +248,8 @@ export default function TodoItem({ todo, currentUser, onStatusChange, onArchive 
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-blue-500 hover:underline truncate"
+                            onClick={(e) => e.stopPropagation()}
+                            onPointerDown={(e) => e.stopPropagation()}
                           >
                             View Image
                           </a>
@@ -221,6 +262,8 @@ export default function TodoItem({ todo, currentUser, onStatusChange, onArchive 
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-blue-500 hover:underline truncate"
+                            onClick={(e) => e.stopPropagation()}
+                            onPointerDown={(e) => e.stopPropagation()}
                           >
                             {attachment.url.length > 30 ? `${attachment.url.substring(0, 30)}...` : attachment.url}
                           </a>
@@ -241,4 +284,3 @@ export default function TodoItem({ todo, currentUser, onStatusChange, onArchive 
     </Card>
   )
 }
-

@@ -4,7 +4,7 @@ import { useState } from "react"
 import type { Shortcut } from "@/lib/types"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ExternalLink, Trash2 } from "lucide-react"
+import { ExternalLink, Trash2, Lock } from "lucide-react"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -39,21 +39,30 @@ export default function ShortcutCard({ shortcut, onDelete }: ShortcutCardProps) 
 
   return (
     <Card
-      className="overflow-hidden h-fit transition-all duration-200 hover:shadow-md"
+      className="relative overflow-hidden h-fit transition-all duration-200 hover:shadow-md"
       style={{ backgroundColor: shortcut.color || "#f3f4f6" }}
     >
+      {/* Private icon on top right if shortcut is private */}
+      {shortcut.status === "private" && (
+        <div className="absolute top-2 right-2">
+          <Lock className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+        </div>
+      )}
       <CardContent className="p-0">
         <div className="p-4 cursor-pointer flex flex-col h-full" onClick={handleOpenLink}>
-          <h3 className=" text-gray-900 dark:text-gray-100 text-center font-bold text-3xl my-10">{shortcut.title}</h3>
-          {/* <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 truncate">{shortcut.url}</p> */}
+          <h3 className="text-gray-900 dark:text-gray-100 text-center font-bold text-3xl my-10">
+            {shortcut.title}
+          </h3>
           <div className="flex-grow"></div>
         </div>
         <div className="flex border-t border-gray-200 dark:border-gray-700 divide-x divide-gray-200 dark:divide-gray-700">
-          <Link href={shortcut.url} className="flex-1 w-full text-center flex items-center justify-center rounded-none h-10 text-xs" >
+          <Link
+            href={shortcut.url}
+            className="flex-1 w-full text-center flex items-center justify-center rounded-none h-10 text-xs"
+          >
             <ExternalLink className="h-4 w-4 mr-2" />
             Open here
           </Link>
-
           <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
             <AlertDialogTrigger asChild>
               <Button
@@ -84,4 +93,3 @@ export default function ShortcutCard({ shortcut, onDelete }: ShortcutCardProps) 
     </Card>
   )
 }
-
