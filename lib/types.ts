@@ -42,6 +42,8 @@ export interface Todo {
   attachments?: TodoAttachment[]
   createdAt: any
   updatedAt: any
+  projectID?: any
+  project?: any
   seenBy?: TodoSeenBy[]
   createdBy?: TodoCreatedBy
   archivedBy?: TodoArchivedBy

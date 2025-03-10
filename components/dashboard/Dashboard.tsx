@@ -11,6 +11,8 @@ import OnlineUsersModal from "../users/OnlineUsersModal"
 import { useOnlineStatus } from "@/hooks/useOnlineStatus"
 import AppsButton from "../todos/AppsButton"
 import AppsModal from "../todos/AppsModal"
+import ProjectsButton from "../users/ProjectsButton"
+import ProjectsModal from "../users/ProjectsModal"
 
 interface DashboardProps {
   user: User
@@ -20,6 +22,7 @@ export default function Dashboard({ user }: DashboardProps) {
   const [todosModalOpen, setTodosModalOpen] = useState(false)
   const [appsModalOpen, setAppsModalOpen] = useState(false)
   const [usersModalOpen, setUsersModalOpen] = useState(false)
+  const [projectsModalOpen, setProjectsModalOpen] = useState(false)
 
   // Update user's online status
   useOnlineStatus(user)
@@ -32,6 +35,7 @@ export default function Dashboard({ user }: DashboardProps) {
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Dashboard</h1>
           <div className="flex space-x-2">
+            <ProjectsButton onClick={() => setProjectsModalOpen(true)} />
             <OnlineUsersButton onClick={() => setUsersModalOpen(true)} />
             <TodosButton onClick={() => setTodosModalOpen(true)} />
             <AppsButton onClick={() => setAppsModalOpen(true)} />
@@ -51,6 +55,7 @@ export default function Dashboard({ user }: DashboardProps) {
       )}
 
       {usersModalOpen && <OnlineUsersModal isOpen={usersModalOpen} onClose={() => setUsersModalOpen(false)} />}
+      {projectsModalOpen && <ProjectsModal isOpen={projectsModalOpen} onClose={() => setProjectsModalOpen(false)} currentUser={user}  />}
     </div>
   )
 }

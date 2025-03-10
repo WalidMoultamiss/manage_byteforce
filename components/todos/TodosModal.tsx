@@ -65,7 +65,7 @@ export default function TodosModal({ isOpen, onClose, currentUser }: TodosModalP
             )}
 
             <TabsContent value="active" className="mt-0">
-              <TodoList OpenWide={OpenWide} currentUser={currentUser} />
+              <TodoList  OpenWide={OpenWide} currentUser={currentUser} />
             </TabsContent>
 
             <TabsContent value="archived" className="mt-0">

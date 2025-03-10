@@ -99,10 +99,19 @@ export default function TodoItem({ OpenWide, todo, currentUser, onStatusChange, 
                 )}
               </div>
 
+
               {/* Created by */}
               {(todo.createdBy && OpenWide) && (
                 <div className="flex items-center text-xs text-muted-foreground">
-                  <span>Created by: </span>
+                  {todo?.project?.logo && (
+                    <>
+                    <Avatar className="h-4 w-4 shadow-sm rounded ml-1">
+                      <AvatarImage src={todo?.project?.logo} />
+                      <AvatarFallback className="text-[8px]">U</AvatarFallback>
+                    </Avatar>
+                    <span className="ml-1">:</span>
+                    </>
+                  )}
                   <Avatar className="h-4 w-4 ml-1">
                     <AvatarImage src={todo.createdBy.photoURL || ""} />
                     <AvatarFallback className="text-[8px]">

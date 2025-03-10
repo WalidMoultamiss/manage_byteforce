@@ -30,6 +30,7 @@ import { CSS } from "@dnd-kit/utilities"
 interface TodoListProps {
   currentUser: User;
   OpenWide: boolean;
+  projectID?: string;
 }
 
 const COLUMNS: { title: string; status: TodoStatus }[] = [
@@ -84,7 +85,7 @@ function DraggableTodoItem({
   )
 }
 
-export default function TodoList({ currentUser , OpenWide }: TodoListProps) {
+export default function TodoList({ currentUser , OpenWide, projectID }: TodoListProps) {
   const [todos, setTodos] = useState<Todo[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
@@ -92,48 +93,84 @@ export default function TodoList({ currentUser , OpenWide }: TodoListProps) {
 
   useEffect(() => {
     if (!db) return
-
-    // Récupérer uniquement les todos non archivés
-    const q = query(
-      collection(db, "todos"),
-      where("status", "!=", "archived"),
-      orderBy("status"),
-      orderBy("updatedAt", "desc") // Tri LIFO
-    )
-
-    const unsubscribe = onSnapshot(
-      q,
-      (querySnapshot) => {
-        const todosData = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as Todo[]
-
-        setTodos(todosData)
-        setLoading(false)
-
-        // Marquer les nouveaux todos comme "vus" par l'utilisateur
-        todosData.forEach((todo) => {
-          if (!processedTodoIds.current.has(todo.id)) {
-            const alreadySeen = todo.seenBy?.some(
-              (user) => user.uid === currentUser.uid
-            )
-            if (!alreadySeen) {
-              markTodoAsSeen(todo.id)
+  
+    const fetchTodos = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+  
+        let todosQuery = query(
+          collection(db, "todos"),
+          where("status", "!=", "archived"),
+          orderBy("status"),
+          orderBy("updatedAt", "desc")
+        )
+  
+        // Si un projectID est fourni, filtrer les todos pour ce projet
+        if (projectID) {
+          todosQuery = query(todosQuery, where("projectID", "==", projectID))
+        }
+  
+        const unsubscribe = onSnapshot(
+          todosQuery,
+          async (querySnapshot) => {
+            let todosData = querySnapshot.docs.map((doc) => ({
+              id: doc.id,
+              ...doc.data(),
+            })) as Todo[]
+  
+            // Si un projectID est fourni, récupérer les détails du projet
+            if (projectID) {
+              const projectRef = doc(db, "projects", projectID)
+              const projectSnap = await getDoc(projectRef)
+  
+              if (projectSnap.exists()) {
+                const projectData = projectSnap.data()
+  
+                // Ajouter les données du projet à chaque todo
+                todosData = todosData.map((todo) => ({
+                  ...todo,
+                  project: projectData,
+                }))
+              }
             }
-            processedTodoIds.current.add(todo.id)
+  
+            setTodos(todosData)
+            setLoading(false)
+  
+            // Marquer les nouveaux todos comme "vus"
+            todosData.forEach((todo) => {
+              if (!processedTodoIds.current.has(todo.id)) {
+                const alreadySeen = todo.seenBy?.some(
+                  (user) => user.uid === currentUser.uid
+                )
+                if (!alreadySeen) {
+                  markTodoAsSeen(todo.id)
+                }
+                processedTodoIds.current.add(todo.id)
+              }
+            })
+          },
+          (error) => {
+            console.error("Error fetching todos:", error)
+            setError("Failed to load todos")
+            setLoading(false)
           }
-        })
-      },
-      (error) => {
-        console.error("Error fetching todos:", error)
-        setError("Failed to load todos")
+        )
+  
+        return () => unsubscribe()
+      } catch (error) {
+        console.error("Error:", error)
+        setError("An error occurred while fetching todos")
         setLoading(false)
       }
-    )
+    }
+  
+    fetchTodos()
+  }, [currentUser.uid, projectID])
+  
+  
 
-    return () => unsubscribe()
-  }, [currentUser.uid])
 
   const markTodoAsSeen = async (todoId: string) => {
     if (!db || !currentUser) return

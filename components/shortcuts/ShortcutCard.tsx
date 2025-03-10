@@ -56,13 +56,14 @@ export default function ShortcutCard({ shortcut, onDelete }: ShortcutCardProps) 
           <div className="flex-grow"></div>
         </div>
         <div className="flex border-t border-gray-200 dark:border-gray-700 divide-x divide-gray-200 dark:divide-gray-700">
-          <Link
-            href={shortcut.url}
+          <a
+          href="#" onClick={()=>window.location.href=`${shortcut.url}`}
+            title={shortcut.url}
             className="flex-1 w-full text-center flex items-center justify-center rounded-none h-10 text-xs"
           >
             <ExternalLink className="h-4 w-4 mr-2" />
             Open here
-          </Link>
+          </a>
           <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
             <AlertDialogTrigger asChild>
               <Button

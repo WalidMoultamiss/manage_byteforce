@@ -27,7 +27,7 @@ export function useOnlineStatus(user: User | null) {
           setAccess(userData.access ?? false)
           console.log("not accepted yet", JSON.stringify(userDoc))
           if (!userData.access) {
-            router.replace("/wait-for-acceptance")
+            // router.replace("/wait-for-acceptance")
           }
         } else {
           // Vérifier si l'utilisateur s'est connecté via Google

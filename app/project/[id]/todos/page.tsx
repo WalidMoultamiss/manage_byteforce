@@ -6,11 +6,14 @@ import { onAuthStateChanged, setPersistence, browserLocalPersistence } from "fir
 import Login from "@/components/auth/Login"
 import Dashboard from "@/components/dashboard/Dashboard"
 import LoadingScreen from "@/components/ui/LoadingScreen"
+import { useRouter } from "next/navigation"
+import ProjectDashboard from "@/components/projectDashboard/projectDashboard"
 
 export default function Home() {
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
 
   useEffect(() => {
     // Ensure Firebase auth persistence is set to localStorage (persist across reloads)
@@ -32,7 +35,13 @@ export default function Home() {
       auth,
       (currentUser) => {
         console.log("User state on reload:", currentUser) // Debugging
-        setUser(currentUser)
+        if (!currentUser) {
+          // If the user is not authenticated, redirect to "/wait-for-acceptance"
+          // router.push("/wait-for-acceptance")
+          console.log("wait")
+        } else {
+          setUser(currentUser)
+        }
         setLoading(false)
       },
       (error) => {
@@ -44,7 +53,7 @@ export default function Home() {
 
     // Cleanup listener on unmount
     return () => unsubscribe()
-  }, [])
+  }, [router])
 
   if (loading) {
     return <LoadingScreen />
@@ -66,7 +75,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {user ? <Dashboard user={user} /> : <Login />}
+      {user ? <ProjectDashboard user={user} /> : <Login />}
     </main>
   )
 }

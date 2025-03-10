@@ -14,15 +14,16 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ExternalLink, Image, X } from "lucide-react"
+import { ExternalLink, Image, MailMinus, MailPlus, X } from "lucide-react"
 
 interface AddTodoFormProps {
   onSubmit: () => void
   onCancel: () => void
-  currentUser: User
+  currentUser: User;
+  projectID?: any;
 }
 
-export default function AddTodoForm({ onSubmit, onCancel, currentUser }: AddTodoFormProps) {
+export default function AddTodoForm({ onSubmit, onCancel, currentUser, projectID }: AddTodoFormProps) {
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [status, setStatus] = useState<TodoStatus>("todo")
@@ -35,6 +36,9 @@ export default function AddTodoForm({ onSubmit, onCancel, currentUser }: AddTodo
   >([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState("")
+
+  const [Email, setEmail] = useState(false);
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -68,7 +72,7 @@ export default function AddTodoForm({ onSubmit, onCancel, currentUser }: AddTodo
 
       const now = serverTimestamp()
 
-      await addDoc(collection(db, "todos"), {
+      const todoData: any = {
         title,
         description: description || null,
         status,
@@ -82,13 +86,32 @@ export default function AddTodoForm({ onSubmit, onCancel, currentUser }: AddTodo
           photoURL: currentUser?.photoURL || null,
           timestamp: now,
         },
-      })
+      }
+
+      // Add projectID if it's available
+      if (projectID) {
+        todoData.projectID = projectID
+      }
+
+      await addDoc(collection(db, "todos"), todoData)
 
       setTitle("")
       setDescription("")
       setStatus("todo")
       setAttachments([])
       onSubmit()
+      if(Email){
+        fetch('/api/email-notification', {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            subject: `Nouvelle tâche : ${title}`,
+            message: `Une nouvelle tâche a été créée :\n\nTitre: ${title}\nDescription: ${description || "Aucune description"}`,
+          }),
+        });
+      }
     } catch (error: any) {
       console.error("Error adding todo:", error)
       setError(error.message || "Failed to add todo")
@@ -96,6 +119,7 @@ export default function AddTodoForm({ onSubmit, onCancel, currentUser }: AddTodo
       setIsSubmitting(false)
     }
   }
+
 
   const addAttachment = (type: "image" | "link") => {
     setAttachments([...attachments, { type }])
@@ -127,13 +151,24 @@ export default function AddTodoForm({ onSubmit, onCancel, currentUser }: AddTodo
     setAttachments(newAttachments)
   }
 
+
   return (
     <Card className="mb-4">
       <form onSubmit={handleSubmit}>
         <CardContent className="pt-4">
           <div className="space-y-4">
+
             <div className="space-y-2">
-              <Label htmlFor="title">Title</Label>
+              <div className="flex w-full items-end justify-between">
+                <Label htmlFor="title">Title</Label>
+                <Button title={Email ? 'Admin will be notified with Email' : 'Notify with Email'} onClick={() => setEmail(v => !v)} variant="outline" type="button" size="icon">
+                  {Email ? (
+                    <MailPlus className="w-4 h-4" />
+                  ) : (
+                    <MailMinus className="w-4 h-4" />
+                  )}
+                </Button>
+              </div>
               <Input
                 id="title"
                 placeholder="What needs to be done?"
