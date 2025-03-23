@@ -22,6 +22,22 @@ export default function AppsModal({ isOpen, onClose, currentUser }: TodosModalPr
   const [isAddingTodo, setIsAddingTodo] = useState(false)
   const [activeTab, setActiveTab] = useState("active")
 
+  async function redirectToGoogleTranslate(lang = "fr") {
+    try {
+      const text = await navigator.clipboard.readText(); // Read clipboard text
+      if (text.trim()) {
+        const encodedText = encodeURIComponent(text); // Encode text for URL
+        const url = `https://translate.google.com/?sl=${lang}&tl=ar&text=${encodedText}&op=translate`;
+        window.open(url, "_blank"); // Redirect to Google Translate
+      } else {
+        alert("Clipboard is empty! Copy some text first.");
+      }
+    } catch (err) {
+      alert("Failed to read clipboard. Please allow permissions.");
+      console.error("Clipboard access error:", err);
+    }
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
@@ -83,6 +99,27 @@ export default function AppsModal({ isOpen, onClose, currentUser }: TodosModalPr
                     </div>
                   </Card>
                 </Link>
+                
+                  <Card>
+                    <div className="flex flex-col items-center justify-center">
+                      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Google_Translate_logo.svg/768px-Google_Translate_logo.svg.png?20210606111727" alt="" className="w-10 object-cover object-center mt-3 h-10 rounded-full shadow-md" />
+                      <p className="font-bold my-3 flex items-center">
+                        Translate from
+                        <div className="flex  justify-center ">
+                        <button
+                        onClick={()=>redirectToGoogleTranslate("fr")}
+                        className="px-2 py-0 rounded-full hover:bg-gray-100">
+                          FR
+                        </button>
+                        <button 
+                        onClick={()=>redirectToGoogleTranslate("en")}
+                        className="px-2 py-0 rounded-full hover:bg-gray-100">
+                          EN
+                        </button>
+                        </div>
+                      </p>
+                    </div>
+                  </Card>
               </div>
             </TabsContent>
 

@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import type { User } from "firebase/auth"
 import { collection, addDoc, serverTimestamp } from "firebase/firestore"
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage"
@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ExternalLink, Image, MailMinus, MailPlus, X } from "lucide-react"
+import { CheckCheckIcon, ExternalLink, Image, Mail, MailMinus, MailPlus, X } from "lucide-react"
 
 interface AddTodoFormProps {
   onSubmit: () => void
@@ -79,7 +79,8 @@ export default function AddTodoForm({ onSubmit, onCancel, currentUser, projectID
         attachments: processedAttachments.length > 0 ? processedAttachments : [],
         createdAt: now,
         updatedAt: now,
-        seenBy: [], // Initialize empty array for seen by users
+        price: Price,
+        seenBy: [],
         createdBy: {
           uid: currentUser?.uid || null,
           displayName: currentUser?.displayName || null,
@@ -100,7 +101,7 @@ export default function AddTodoForm({ onSubmit, onCancel, currentUser, projectID
       setStatus("todo")
       setAttachments([])
       onSubmit()
-      if(Email){
+      if (Email) {
         fetch('/api/email-notification', {
           method: "POST",
           headers: {
@@ -108,7 +109,7 @@ export default function AddTodoForm({ onSubmit, onCancel, currentUser, projectID
           },
           body: JSON.stringify({
             subject: `Nouvelle tâche : ${title}`,
-            message: `Une nouvelle tâche a été créée :\n\nTitre: ${title}\nDescription: ${description || "Aucune description"}`,
+            message: `Une nouvelle tâche a été créée :\n\nTitre: ${title}\nDescription: ${description || "Aucune description"} \nprix:${Price}DH`,
           }),
         });
       }
@@ -151,23 +152,44 @@ export default function AddTodoForm({ onSubmit, onCancel, currentUser, projectID
     setAttachments(newAttachments)
   }
 
+  const [Price, setPrice] = useState(0);
+
+  useEffect(() => {
+    if (Price === 0) {
+      setEmail(false)
+    }
+  }, [Price])
+
 
   return (
     <Card className="mb-4">
       <form onSubmit={handleSubmit}>
         <CardContent className="pt-4">
           <div className="space-y-4">
-
             <div className="space-y-2">
               <div className="flex w-full items-end justify-between">
                 <Label htmlFor="title">Title</Label>
-                <Button title={Email ? 'Admin will be notified with Email' : 'Notify with Email'} onClick={() => setEmail(v => !v)} variant="outline" type="button" size="icon">
-                  {Email ? (
-                    <MailPlus className="w-4 h-4" />
-                  ) : (
-                    <MailMinus className="w-4 h-4" />
-                  )}
-                </Button>
+                {!!Price && (
+                  <Button
+                    style={{
+                      background: Email ? "green" : 'white',
+                      color: Email ? "white" : "black",
+                    }}
+                    title={Email ? 'Admin will be notified with Email' : 'Notify with Email'} onClick={() => setEmail(v => !v)} variant="outline" type="button">
+                    {Email ? (
+                      <>
+                        <Mail className="w-4 h-4" />
+                        <CheckCheckIcon />
+                        Notified with email
+                      </>
+                    ) : (
+                      <>
+                        <MailMinus className="w-4 h-4" />
+                        Notify with email
+                      </>
+                    )}
+                  </Button>
+                )}
               </div>
               <Input
                 id="title"
@@ -189,18 +211,45 @@ export default function AddTodoForm({ onSubmit, onCancel, currentUser, projectID
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="status">Status</Label>
-              <Select value={status} onValueChange={(value) => setStatus(value as TodoStatus)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="todo">To Do</SelectItem>
-                  <SelectItem value="in-progress">In Progress</SelectItem>
-                  <SelectItem value="done">Done</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="flex gap-3">
+              <div className="space-y-2 w-full">
+                <Label htmlFor="status">Price (Optional | <em>Please note that tasks with price might take <u><b className="animate-pulse ">less time</b></u> to solve</em>)</Label>
+                <div
+                
+                className="w-full bg-green-600 rounded-md flex items-center">
+                  <b className="mx-2 text-white">
+                    DH
+                  </b>
+                  <Input
+                    onChange={(e) => setPrice(+e.target.value)}
+                    value={Price}
+                    type="number" className="outline-green-600 border-green-600 border-2" min={100} placeholder="Add price (DH)" />
+                </div>
+              </div>
+              {Price ? (
+                <div
+                  className="space-y-2 transition-all flex items-end">
+                  <Button
+                    onClick={() => setPrice(0)}
+                    type="button" size="icon" variant="outline" >
+                    <X />
+                  </Button>
+                </div>
+              ) : <div />}
+              <div className="space-y-2 w-64 ">
+                <Label htmlFor="status">Status</Label>
+                <Select value={status} onValueChange={(value) => setStatus(value as TodoStatus)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todo">To Do</SelectItem>
+                    <SelectItem value="in-progress">In Progress</SelectItem>
+                    <SelectItem value="done">Done</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
             </div>
 
             <div className="space-y-2">
@@ -268,7 +317,7 @@ export default function AddTodoForm({ onSubmit, onCancel, currentUser, projectID
           </div>
         </CardContent>
 
-        <CardFooter className="flex justify-between">
+        <CardFooter className="flex justify-end gap-3">
           <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
             Cancel
           </Button>

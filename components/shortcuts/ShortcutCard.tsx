@@ -39,7 +39,7 @@ export default function ShortcutCard({ shortcut, onDelete }: ShortcutCardProps) 
 
   return (
     <Card
-      className="relative overflow-hidden h-fit transition-all duration-200 hover:shadow-md"
+      className="relative overflow-hidden  transition-all duration-200 hover:shadow-md h-full"
       style={{ backgroundColor: shortcut.color || "#f3f4f6" }}
     >
       {/* Private icon on top right if shortcut is private */}
@@ -48,9 +48,9 @@ export default function ShortcutCard({ shortcut, onDelete }: ShortcutCardProps) 
           <Lock className="h-5 w-5 text-gray-600 dark:text-gray-300" />
         </div>
       )}
-      <CardContent className="p-0">
-        <div className="p-4 cursor-pointer flex flex-col h-full" onClick={handleOpenLink}>
-          <h3 className="text-gray-900 dark:text-gray-100 text-center font-bold text-3xl my-10">
+      <CardContent className="p-0 h-full">
+        <div className="p-4 h-42 cursor-pointer flex flex-col " onClick={handleOpenLink}>
+          <h3 className={`text-gray-900 dark:text-gray-100 text-center font-bold text-${shortcut.title.length < 12 ? 3 : shortcut.title.length <20 ? 2 : "" }xl my-10`}>
             {shortcut.title}
           </h3>
           <div className="flex-grow"></div>
